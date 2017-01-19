@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Objects;
 import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -343,8 +344,12 @@ public class Country implements Serializable {
         return true;
     }
     
-    public String toString(Collection<String> fields) {
-        boolean selectFields = !fields.isEmpty();
+    public JsonObject toJson() {
+        return toJson(null);
+    }
+    
+    public JsonObject toJson(Collection<String> fields) {
+        boolean selectFields = (fields != null && !fields.isEmpty());
         
         JsonObjectBuilder builder = Json.createObjectBuilder();
         
@@ -410,6 +415,6 @@ public class Country implements Serializable {
             if(this.internet != null) builder.add(TAG_INTERNET, this.internet);
         }
         
-        return builder.build().toString();
+        return builder.build();
     }
 }

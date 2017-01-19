@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
@@ -34,19 +36,14 @@ public class ResourceCountry {
     @Produces(MediaType.APPLICATION_JSON)
     public Response fetchAll() throws NoContentException {
         Collection<String> queryParameters = queryParameters();
-        boolean hasQueryParameters = !queryParameters.isEmpty();
         
-        GenericEntity<?> generic;
         Collection<Country> all = service.fetchAllCountries(queryParameters);
-        Collection<String> allSelected = new ArrayList<>();
         
-        if(hasQueryParameters) 
-            for(Country country: all) 
-                allSelected.add(country.toString(queryParameters));
+        JsonArrayBuilder builder = Json.createArrayBuilder();
+        for(Country country: service.fetchAllCountries(queryParameters))
+            builder.add(country.toJson(queryParameters));
         
-        return Response.ok(hasQueryParameters 
-                ? new GenericEntity<Collection<String>>(allSelected) {}
-                : new GenericEntity<Collection<Country>>(all){}).build();
+        return Response.ok(builder.build()).build();
     }
     
     @GET @Path("/{internet}")
@@ -55,7 +52,7 @@ public class ResourceCountry {
         Collection<String> queryParameters = queryParameters();
         
         Country found = service.fetchInternet(internet);
-        return Response.ok(found.toString(queryParameters)).build();
+        return Response.ok(found.toJson(queryParameters)).build();
     }
     
     /**
